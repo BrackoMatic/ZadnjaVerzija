@@ -4,6 +4,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
+import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -28,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
     BluetoothAdapter myBT_A;
     Set<BluetoothDevice> povezane_naprave;
    // com.example.vetrovnik_projekt.BluetoothSocket blsocket = null;
-    public static BluetoothSocket blsocket = null;
+    public BluetoothSocket blsocket;
     BluetoothDevice pairedBluetoothDevice;
 
     @Override
@@ -108,7 +109,12 @@ public class MainActivity extends AppCompatActivity {
         seznam_naprav.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                vzpostaviBT(ListDevices.get(i));
+               BluetoothDevice posljibt =ListDevices.get(i);
+
+                Intent intent= new Intent (MainActivity.this, serijski_terminal.class);
+                intent.putExtra("ListviewClickValue",  posljibt);
+                startActivityForResult(intent,0);
+
             }
         });
     }
@@ -142,25 +148,6 @@ public class MainActivity extends AppCompatActivity {
         return name;
     }
 
-    void vzpostaviBT(BluetoothDevice  bt)
-    {
-        UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb") ;
-        try {
-            blsocket = bt.createInsecureRfcommSocketToServiceRecord(uuid);
-            blsocket.connect();
-            //blsocket.
-            pairedBluetoothDevice = bt;
-            Toast.makeText(getApplicationContext(), "Device paired successfully!",Toast.LENGTH_LONG).show();
-
-                  startActivity(new Intent(MainActivity.this, serijski_terminal.class));
-
-        }catch(IOException ioe)
-        {
-            //Log("taha>", "cannot connect to device :( " +ioe);
-            Toast.makeText(getApplicationContext(), "Could not connect",Toast.LENGTH_LONG).show();
-            pairedBluetoothDevice = null;
-        }
-    }
 
 
 

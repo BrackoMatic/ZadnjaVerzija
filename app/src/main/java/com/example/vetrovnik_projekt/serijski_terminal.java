@@ -1,77 +1,85 @@
 package com.example.vetrovnik_projekt;
 
+import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.Spannable;
-import android.text.SpannableStringBuilder;
 import android.text.method.ScrollingMovementMethod;
 import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.Struct;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.UUID;
 import java.io.OutputStream;
 
+import static android.widget.Toast.makeText;
 import static com.example.vetrovnik_projekt.R.color.colorAccent;
 
 public class serijski_terminal extends MainActivity {
-    Button button2, button;
+    Button sendButton, goBackButton;
     EditText data;
-    String str, podatki;
     private TextView recieve_text;
-    InputStream inputStream;
-    OutputStream outputStream;
-    Thread workerThread;
-    byte[] readBuffer;
-    int readBufferPosition;
-    int counter;
-    volatile boolean stopWorker;
-
+    BluetoothSocket blsocket;
+    BluetoothDevice pairedBluetoothDevice;
     private String newline = "\n";
+
+    Switch izpisuj;
+
+
+    private static final int REQUEST_ENABLE_BT = 1;
+    //    ThreadConnectBTdevice myThreadConnectBTdevice;
+    ThreadConnected myThreadConnected;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_serijski_terminal);
-
-//            byte[] buffer = new byte[1024];
-//            int bytes;
-//            try {
-//                inputStream=blsocket.getInputStream();
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//            try {
-//                outputStream = blsocket.getOutputStream();
-//            } catch(IOException e)
-//            {
-//                e.printStackTrace();
-//            }
-        button2 = findViewById(R.id.button2);
-        recieve_text = findViewById(R.id.recieve_text);                          // TextView performance decreases with number of spans
-        recieve_text.setTextColor(getResources().getColor(R.color.colorPrimary)); // set as default color to reduce number of spans
+        izpisuj = findViewById(R.id.izpisuj);
+        sendButton = findViewById(R.id.sendButton);
+        recieve_text = findViewById(R.id.recieved_text);                          // TextView performance decreases with number of spans
+        recieve_text.setTextColor(getResources().getColor(R.color.colorPrimary, getTheme())); // set as default color to reduce number of spans
         recieve_text.setMovementMethod(ScrollingMovementMethod.getInstance());
-        button = findViewById(R.id.button);
+        goBackButton = findViewById(R.id.goBackButton);
 
         data = findViewById(R.id.editText);
 
-        beginListenForData();
-        button.setOnClickListener(new View.OnClickListener() {
+        izpisuj.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onClick(View v) {
-                //String test = data.getText().toString();
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (compoundButton.isChecked()) {
+
+                    if (blsocket.isConnected()) {
+                        startThreadConnected(blsocket);
+                    }
+                } else {
+                    myThreadConnected = new ThreadConnected(blsocket);
+                }
+
+            }
+        });
+
+        sendButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
 
                 String string = String.valueOf(data.getText());
                 try {
@@ -80,19 +88,62 @@ public class serijski_terminal extends MainActivity {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-
-                // serijski_terminal.this.posljipodatke(data.getText().toString());
             }
-        });
-
-
-        button2.setOnClickListener(new View.OnClickListener() {
+        });//
+        goBackButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                try {
+                    blsocket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 startActivity(new Intent(serijski_terminal.this, MainActivity.class));
             }
         });
     }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        setup();
+    }
+
+    private void setup() {
+//        String bundle;
+//        BluetoothDevice device;
+//        device = getIntent().getBundleExtra("ListviewClickValue");
+
+        BluetoothDevice bt;
+        bt = getIntent().getExtras().getParcelable("ListviewClickValue");
+        vzpostaviBT(bt);
+
+        recieve_text.setText("start ThreadConnectBTdevice");
+//        myThreadConnectBTdevice = new ThreadConnectBTdevice(blsocket);
+//        myThreadConnectBTdevice.start();
+//       startThreadConnected(blsocket);
+    }
+
+    private void vzpostaviBT(BluetoothDevice bluetoothDevice) {
+
+        UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb");
+        try {
+            blsocket = bluetoothDevice.createInsecureRfcommSocketToServiceRecord(uuid);
+            blsocket.connect();
+            pairedBluetoothDevice = bluetoothDevice;
+            makeText(getApplicationContext(), "Device paired successfully!", Toast.LENGTH_LONG).show();
+
+
+        } catch (IOException ioe) {
+            //Log("taha>", "cannot connect to device :( " +ioe);
+            makeText(getApplicationContext(), "Could not connect", Toast.LENGTH_LONG).show();
+            Intent intent = new Intent(serijski_terminal.this, MainActivity.class);
+            startActivity(intent);
+            pairedBluetoothDevice = null;
+        }
+    }
+
 
     void posljipodatke(String podatki) {
         //make sure there is a paired device
@@ -100,13 +151,6 @@ public class serijski_terminal extends MainActivity {
             return;
         }
         try {
-            //SpannableStringBuilder spn = new SpannableStringBuilder(podatki+"\r\n");
-            // Span to set text color to some RGB value
-            //final ForegroundColorSpan fcs = new ForegroundColorSpan(Color.rgb(158, 158, 158));
-            // spn.setSpan(fcs, 0, 15, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            recieve_text.setText("");
-            recieve_text.append(podatki + "\r\n");
-
             byte[] data = (podatki + newline + "\r").getBytes();
             blsocket.getOutputStream().write(data);
         } catch (Exception c) {
@@ -114,68 +158,100 @@ public class serijski_terminal extends MainActivity {
         }
         ;
     }
-    public void beginListenForData()
-    {
-        final Handler handler = new Handler();
-        final byte delimiter = 10; //This is the ASCII code for a newline character
 
-        stopWorker = false;
-        readBufferPosition = 0;
-        readBuffer = new byte[1024];
-        workerThread = new Thread(new Runnable()
-        {
-            public void run()
-            {
-                try {
-                    inputStream=blsocket.getInputStream();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                while(!Thread.currentThread().isInterrupted() && !stopWorker)
-                {
-                    try
-                    {
-                        int bytesAvailable = inputStream.available();
-                        if(bytesAvailable > 0)
-                        {
-                            byte[] packetBytes = new byte[bytesAvailable];
-                            inputStream.read(packetBytes);
-                            for(int i=0;i<bytesAvailable;i++)
-                            {
-                                byte b = packetBytes[i];
-                                if(b == delimiter)
-                                {
-                                    byte[] encodedBytes = new byte[readBufferPosition];
-                                    System.arraycopy(readBuffer, 0, encodedBytes, 0, encodedBytes.length);
-                                    final String data = new String(encodedBytes, "US-ASCII");
-                                    readBufferPosition = 0;
 
-                                    handler.post(new Runnable()
-                                    {
-                                        public void run()
-                                        {
-                                            recieve_text.setText(data);
-                                        }
-                                    });
-                                }
-                                else
-                                {
-                                    readBuffer[readBufferPosition++] = b;
-                                }
-                            }
-                        }
-                    }
-                    catch (IOException ex)
-                    {
-                        stopWorker = true;
-                    }
-                }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+//        if (myThreadConnectBTdevice != null) {
+////            myThreadConnectBTdevice.cancel();
+//        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_ENABLE_BT) {
+            if (resultCode == Activity.RESULT_OK) {
+                setup();
+            } else {
+                makeText(this,
+                        "BlueTooth NOT enabled",
+                        Toast.LENGTH_SHORT).show();
+                finish();
             }
-        });
-
-        workerThread.start();
+        }
     }
 
 
+    private void startThreadConnected(BluetoothSocket socket) {
+
+        myThreadConnected = new ThreadConnected(socket);
+        myThreadConnected.start();
+    }
+
+
+    private class ThreadConnected extends Thread {
+        private final InputStream inputStream;
+
+        private ThreadConnected(BluetoothSocket socket) {
+
+            InputStream in = null;
+            OutputStream out = null;
+
+            try {
+                in = socket.getInputStream();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            inputStream = in;
+        }
+
+        // FUNKCIJA ZA SPREJEMANJE !
+        @Override
+        public void run() {
+            byte[] buffer = new byte[1024];
+            int bytes;
+
+
+            while (true) {
+                if (izpisuj.isChecked()) {
+                    try {
+                        bytes = inputStream.read(buffer);
+                        String strReceived = new String(buffer, 0, bytes);
+                        final String msgReceived = strReceived;
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                recieve_text.setText(msgReceived);
+                            }
+                        });
+
+                    } catch (IOException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+
+                        final String msgConnectionLost = "Connection lost:\n"
+                                + e.getMessage();
+                        runOnUiThread(new Runnable() {
+
+                            @Override
+                            public void run() {
+
+//                            makeText(this,"Lost connection",Toast.LENGTH_LONG).show();
+                                Intent intent = new Intent(serijski_terminal.this, MainActivity.class);
+                                startActivity(intent);
+                            }
+                        });
+
+                    }
+                } else {
+                    return;
+                }
+            }
+
+        }
+
+    }
 }
 
