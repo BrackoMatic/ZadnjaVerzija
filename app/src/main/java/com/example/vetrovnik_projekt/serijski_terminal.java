@@ -1,21 +1,18 @@
 package com.example.vetrovnik_projekt;
 
 import android.app.Activity;
-import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
-import android.graphics.Color;
-import android.os.AsyncTask;
-import android.os.Handler;
-import android.support.v7.app.AppCompatActivity;
+import android.os.CountDownTimer;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentContainer;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
-import android.text.style.ForegroundColorSpan;
-import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -23,16 +20,19 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.Struct;
-import java.util.ArrayList;
-import java.util.Set;
+import java.util.Objects;
+import java.util.Scanner;
 import java.util.UUID;
-import java.io.OutputStream;
+import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.series.DataPoint;
+import com.jjoe64.graphview.series.LineGraphSeries;
+
 
 import static android.widget.Toast.makeText;
-import static com.example.vetrovnik_projekt.R.color.colorAccent;
 
 public class serijski_terminal extends MainActivity {
     Button sendButton, goBackButton;
@@ -40,20 +40,23 @@ public class serijski_terminal extends MainActivity {
     private TextView recieve_text;
     BluetoothSocket blsocket;
     BluetoothDevice pairedBluetoothDevice;
-    private String newline = "\n";
-
-    Switch izpisuj;
-
+    Switch fragmentSwitch;
+    CountDownTimer countDownTimer;
+    Boolean BreakRUNflag;
+    Fragment SetRegulatorParameters, GraphFragment;
 
     private static final int REQUEST_ENABLE_BT = 1;
-    //    ThreadConnectBTdevice myThreadConnectBTdevice;
+
     ThreadConnected myThreadConnected;
+    Fragment graphFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_serijski_terminal);
-        izpisuj = findViewById(R.id.izpisuj);
+
+
+        fragmentSwitch = findViewById(R.id.izpisuj);
         sendButton = findViewById(R.id.sendButton);
         recieve_text = findViewById(R.id.recieved_text);                          // TextView performance decreases with number of spans
         recieve_text.setTextColor(getResources().getColor(R.color.colorPrimary, getTheme())); // set as default color to reduce number of spans
@@ -62,39 +65,52 @@ public class serijski_terminal extends MainActivity {
 
         data = findViewById(R.id.editText);
 
-        izpisuj.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+        fragmentSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if (compoundButton.isChecked()) {
-
                     if (blsocket.isConnected()) {
-                        startThreadConnected(blsocket);
+                        try {
+                            Fragment f = (Fragment) (GraphFragment.class).newInstance();
+                        } catch (IllegalAccessException e) {
+                            e.printStackTrace();
+                        } catch (InstantiationException e) {
+                            e.printStackTrace();
+                        }
+                        fragmentSwitch.setText("Regulator");
+                        FragmentManager fm = getSupportFragmentManager();
+                        FragmentTransaction ft = fm.beginTransaction();
+                        ft.replace(R.id.changeFragment, new GraphFragment()).commit();
+                        fm.executePendingTransactions();
+                        BreakRUNflag = false;
+                        return;
                     }
-                } else {
-                    myThreadConnected = new ThreadConnected(blsocket);
                 }
 
+                fragmentSwitch.setText("Graph");
+                FragmentManager fm = getSupportFragmentManager();
+                FragmentTransaction ft = fm.beginTransaction();
+                ft.replace(R.id.changeFragment, new SetRegulatorParameters()).commit();
+                fm.executePendingTransactions();
+                return;
             }
         });
 
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                BreakRUNflag = true;
 
-                String string = String.valueOf(data.getText());
-                try {
-                    posljipodatke(string);
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
             }
         });//
         goBackButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                fragmentSwitch.setChecked(false);
                 try {
                     blsocket.close();
+                    myThreadConnected = null;
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -111,18 +127,19 @@ public class serijski_terminal extends MainActivity {
     }
 
     private void setup() {
-//        String bundle;
-//        BluetoothDevice device;
-//        device = getIntent().getBundleExtra("ListviewClickValue");
+
 
         BluetoothDevice bt;
-        bt = getIntent().getExtras().getParcelable("ListviewClickValue");
-        vzpostaviBT(bt);
+        try {
+            bt = Objects.requireNonNull(getIntent().getExtras()).getParcelable("ListviewClickValue");
+            assert bt != null;
+            vzpostaviBT(bt);
+            recieve_text.setText("start ThreadConnectBTdevice");
+            fragmentSwitch.setChecked(false);
+        } catch (Exception x) {
+            x.printStackTrace();
+        }
 
-        recieve_text.setText("start ThreadConnectBTdevice");
-//        myThreadConnectBTdevice = new ThreadConnectBTdevice(blsocket);
-//        myThreadConnectBTdevice.start();
-//       startThreadConnected(blsocket);
     }
 
     private void vzpostaviBT(BluetoothDevice bluetoothDevice) {
@@ -133,7 +150,8 @@ public class serijski_terminal extends MainActivity {
             blsocket.connect();
             pairedBluetoothDevice = bluetoothDevice;
             makeText(getApplicationContext(), "Device paired successfully!", Toast.LENGTH_LONG).show();
-
+            BreakRUNflag = false;
+            startThreadConnected(blsocket);
 
         } catch (IOException ioe) {
             //Log("taha>", "cannot connect to device :( " +ioe);
@@ -144,19 +162,18 @@ public class serijski_terminal extends MainActivity {
         }
     }
 
-
     void posljipodatke(String podatki) {
         //make sure there is a paired device
-        if (pairedBluetoothDevice != null && blsocket != null) {
+        if (blsocket == null) {
             return;
         }
         try {
-            byte[] data = (podatki + newline + "\r").getBytes();
+            byte[] data = (podatki + "\r\n").getBytes();
             blsocket.getOutputStream().write(data);
         } catch (Exception c) {
             ///
         }
-        ;
+        BreakRUNflag = false;
     }
 
 
@@ -197,8 +214,6 @@ public class serijski_terminal extends MainActivity {
         private ThreadConnected(BluetoothSocket socket) {
 
             InputStream in = null;
-            OutputStream out = null;
-
             try {
                 in = socket.getInputStream();
             } catch (IOException e) {
@@ -212,33 +227,46 @@ public class serijski_terminal extends MainActivity {
         public void run() {
             byte[] buffer = new byte[1024];
             int bytes;
+            final Bundle bundle = new Bundle();
 
 
             while (true) {
-                if (izpisuj.isChecked()) {
+                if (!BreakRUNflag) {
                     try {
-                        bytes = inputStream.read(buffer);
-                        String strReceived = new String(buffer, 0, bytes);
-                        final String msgReceived = strReceived;
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+
+                            }
+                        });
+                        bytes = inputStream.read(buffer);
+                        final String msgReceived = new String(buffer, 0, bytes);
+
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                GraphFragment graphFragment = new GraphFragment();
+                                if (fragmentSwitch.isChecked()) {
+                                    if (!msgReceived.isEmpty()) {
+                                        try {
+                                         Scanner in = new Scanner(msgReceived).useDelimiter("[^0-9]+");
+                                            int integer = in.nextInt();
+                                            graphFragment.addEntry(graphFragment,integer);
+                                        }catch (Exception e){e.printStackTrace();}
+
+                                        }
+
+                                }
                                 recieve_text.setText(msgReceived);
                             }
                         });
 
                     } catch (IOException e) {
-                        // TODO Auto-generated catch block
                         e.printStackTrace();
 
-                        final String msgConnectionLost = "Connection lost:\n"
-                                + e.getMessage();
                         runOnUiThread(new Runnable() {
-
                             @Override
                             public void run() {
-
-//                            makeText(this,"Lost connection",Toast.LENGTH_LONG).show();
                                 Intent intent = new Intent(serijski_terminal.this, MainActivity.class);
                                 startActivity(intent);
                             }
@@ -246,12 +274,25 @@ public class serijski_terminal extends MainActivity {
 
                     }
                 } else {
-                    return;
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            String string = String.valueOf(data.getText());
+                            try {
+                                posljipodatke(string);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+
+                    });
+
                 }
             }
-
         }
 
     }
+
 }
 
