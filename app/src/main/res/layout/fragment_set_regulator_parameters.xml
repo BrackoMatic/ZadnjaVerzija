@@ -4,79 +4,95 @@
     android:id="@+id/frameLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:scrollbarTrackHorizontal="@android:drawable/arrow_down_float"
+    android:scrollbarTrackVertical="@android:drawable/arrow_down_float"
+    android:verticalScrollbarPosition="defaultPosition"
     tools:context=".SetRegulatorParameters">
-
     <!-- TODO: Update blank fragment layout -->
     <Button
         android:id="@+id/btnSendKp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_marginStart="15dp"
+        android:layout_width="90dp"
+        android:layout_height="50dp"
         android:layout_alignParentTop="true"
+        android:layout_marginStart="25dp"
         android:layout_marginTop="100dp"
-        android:text="send KP"
-        tools:layout_editor_absoluteX="273dp"
-        tools:layout_editor_absoluteY="87dp" />
+        android:layout_toRightOf="@id/btnSendKi"
+        android:text="send KP" />
 
     <Button
         android:id="@+id/btnSendKi"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="send Ki"
-        android:layout_alignParentStart="true"
-        android:layout_marginStart="125dp"
+        android:layout_width="90dp"
+        android:layout_height="50dp"
         android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
         android:layout_marginTop="100dp"
-        tools:layout_editor_absoluteX="282dp"
-        tools:layout_editor_absoluteY="187dp" />
+        android:text="send Ki" />
+
     <Button
         android:id="@+id/btnSendKd"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="send Kd"
-        android:layout_alignParentStart="true"
-        android:layout_marginStart="250dp"
+        android:layout_width="90dp"
+        android:layout_height="50dp"
         android:layout_alignParentTop="true"
         android:layout_marginTop="100dp"
-        tools:layout_editor_absoluteX="273dp"
-        tools:layout_editor_absoluteY="304dp" />
+        android:layout_marginRight="25dp"
+        android:layout_toLeftOf="@id/btnSendKi"
+        android:inputType="numberDecimal"
+        android:text="SEND KD" />
 
     <EditText
         android:id="@+id/insertKp"
-        android:layout_width="75dp"
+        android:layout_width="90dp"
         android:layout_height="50dp"
-        android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:layout_marginStart="22dp"
+        android:layout_marginStart="25dp"
         android:layout_marginTop="48dp"
-        android:inputType="numberDecimal"
-        tools:layout_editor_absoluteX="160dp"
-        tools:layout_editor_absoluteY="87dp" />
+        android:layout_toRightOf="@id/btnSendKi"
+        android:inputType="numberDecimal" />
 
     <EditText
         android:id="@+id/insertKi"
-        android:layout_width="75dp"
+        android:layout_width="90dp"
         android:layout_height="50dp"
-        android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:layout_marginStart="125dp"
+        android:layout_centerHorizontal="true"
         android:layout_marginTop="50dp"
-        android:inputType="numberDecimal"
-        tools:layout_editor_absoluteX="160dp"
-        tools:layout_editor_absoluteY="187dp" />
+        android:inputType="numberDecimal" />
 
     <EditText
         android:id="@+id/insertKd"
-        android:layout_width="75dp"
+        android:layout_width="90dp"
         android:layout_height="50dp"
-        android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:layout_marginStart="250dp"
         android:layout_marginTop="50dp"
-        android:inputType="numberDecimal"
-        tools:layout_editor_absoluteX="161dp"
-        tools:layout_editor_absoluteY="305dp" />
+        android:layout_marginRight="25dp"
+        android:layout_toLeftOf="@id/btnSendKi"
+        android:inputType="numberDecimal" />
+
+    <Switch
+        android:id="@+id/turnOnOffswitch"
+        android:layout_width="150dp"
+        android:layout_height="40dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginStart="112dp"
+        android:layout_marginTop="5dp"
+        android:text="turnOnOffswitch" />
+
+    <SeekBar
+        android:id="@+id/referenca"
+        style="@android:style/Widget.SeekBar"
+        android:layout_width="250dp"
+        android:layout_height="100dp"
+        android:layout_below="@id/btnSendKi"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="80dp"
+        android:background="@color/colorPrimary"
+        android:max="900"
+        android:rotation="270"
+        android:scrollbarAlwaysDrawVerticalTrack="true"
+        android:scrollbarThumbHorizontal="@null"
+        android:scrollbars="vertical|none"
+        android:thumb="@android:drawable/ic_media_play" />
 
 
 </RelativeLayout>

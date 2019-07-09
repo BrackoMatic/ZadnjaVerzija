@@ -1,20 +1,25 @@
 package com.example.vetrovnik_projekt;
 
-import android.content.Context;
-import android.net.Uri;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.SeekBar;
+import android.widget.Switch;
 
 
-public class SetRegulatorParameters extends Fragment {
+public class SetRegulatorParameters extends Fragment
+
+        {
     EditText insertKd,insertKi,insertKp;
     Button btnSendKd,btnSendKi,btnSendKp;
+    Switch turnOnOffswitch;
+    SeekBar referenca;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
@@ -29,11 +34,62 @@ public class SetRegulatorParameters extends Fragment {
         insertKi=view.findViewById(R.id.insertKi);
         insertKp=view.findViewById(R.id.insertKp);
 
+        turnOnOffswitch=view.findViewById(R.id.turnOnOffswitch);
+        referenca=view.findViewById(R.id.referenca);
+
+        referenca.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                int tempRef=i;
+                ((serijski_terminal)getActivity()).posredujNaActivity("R"+tempRef);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+            @Override
+
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+
+        turnOnOffswitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (b==true)
+                {
+                    ((serijski_terminal)getActivity()).posredujNaActivity("V1");
+                    turnOnOffswitch.setText("Turn Off");
+                            turnOnOffswitch.setBackgroundColor(Color.GREEN);
+                }else
+                {
+                    ((serijski_terminal)getActivity()).posredujNaActivity("V0");
+                    turnOnOffswitch.setText("Turn On");
+                    turnOnOffswitch.setBackgroundColor(Color.RED);
+                }
+            }
+        });
         btnSendKd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                insertKd.getText().toString();
-
+                String podatki= insertKd.getText().toString();
+                ((serijski_terminal)getActivity()).posredujNaActivity("K"+podatki);
+                }
+        });
+        btnSendKi.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String podatki= insertKi.getText().toString();
+                ((serijski_terminal)getActivity()).posredujNaActivity("I"+podatki);
+            }
+        });
+        btnSendKp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String podatki= insertKp.getText().toString();
+                ((serijski_terminal)getActivity()).posredujNaActivity("P"+podatki);
             }
         });
 
@@ -41,4 +97,5 @@ public class SetRegulatorParameters extends Fragment {
 
     }
 
+///https://stackoverflow.com/questions/12659747/call-an-activity-method-from-a-fragment
 }

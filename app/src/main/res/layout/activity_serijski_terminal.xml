@@ -6,47 +6,38 @@
     android:layout_height="match_parent"
     tools:context=".serijski_terminal">
 
-    <SeekBar
-        android:id="@+id/seekBar"
-        android:layout_width="100dp"
-        android:layout_height="250dp"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@id/sendButton"
-        android:layout_marginTop="10dp"
-        android:rotation="270" />
 
-    <EditText
-        android:id="@+id/editText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@id/recieved_text"
-        android:layout_marginTop="5dp"
-        android:clickable="false"
-        android:ems="10"
-        android:inputType="textPersonName"
-        android:text="Send something" />
+
+    <!--<EditText-->
+        <!--android:id="@+id/editText"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_centerHorizontal="true"-->
+        <!--android:layout_below="@id/recieved_text"-->
+        <!--android:layout_marginTop="5dp"-->
+        <!--android:clickable="false"-->
+        <!--android:ems="10"-->
+        <!--android:inputType="textPersonName"-->
+        <!--android:text="Send something" />-->
 
     <TextView
         android:id="@+id/recieved_text"
-        android:layout_width="135dp"
-        android:layout_height="30dp"
+        android:layout_width="200dp"
+        android:layout_height="50dp"
         android:layout_below="@+id/changeFragment"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="5dp"
-        android:layout_marginEnd="10dp"
-        android:layout_marginStart="20dp" />
+        android:layout_marginTop="80dp"
+        android:layout_centerHorizontal="true"        />
 
 
-    <Button
-        android:id="@+id/sendButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/editText"
-        android:layout_alignParentStart="true"
-        android:layout_marginStart="322dp"
-        android:layout_marginTop="-48dp"
-        android:text="Poslji" />
+    <!--<Button-->
+        <!--android:id="@+id/sendButton"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_below="@+id/editText"-->
+        <!--android:layout_alignParentStart="true"-->
+        <!--android:layout_marginStart="322dp"-->
+        <!--android:layout_marginTop="-48dp"-->
+        <!--android:text="Poslji" />-->
 
     <Button
         android:id="@+id/goBackButton"
@@ -62,16 +53,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/changeFragment"
-        android:layout_alignParentEnd="true"
-        android:layout_marginRight="20dp"
-        android:layout_marginTop="5dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"
         android:text="PlotGraph" />
 
     <FrameLayout
         android:id="@+id/changeFragment"
         android:name="com.example.vetrovnik_projekt.GraphFragment"
         android:layout_width="match_parent"
-        android:layout_height="250dp"
+        android:layout_height="400dp"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:layout_marginStart="0dp"

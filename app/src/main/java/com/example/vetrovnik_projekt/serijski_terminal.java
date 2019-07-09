@@ -27,6 +27,7 @@ import java.io.InputStream;
 import java.util.Objects;
 import java.util.Scanner;
 import java.util.UUID;
+
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
@@ -57,13 +58,13 @@ public class serijski_terminal extends MainActivity {
 
 
         fragmentSwitch = findViewById(R.id.izpisuj);
-        sendButton = findViewById(R.id.sendButton);
+//        sendButton = findViewById(R.id.sendButton);
         recieve_text = findViewById(R.id.recieved_text);                          // TextView performance decreases with number of spans
         recieve_text.setTextColor(getResources().getColor(R.color.colorPrimary, getTheme())); // set as default color to reduce number of spans
         recieve_text.setMovementMethod(ScrollingMovementMethod.getInstance());
         goBackButton = findViewById(R.id.goBackButton);
 
-        data = findViewById(R.id.editText);
+//        data = findViewById(R.id.editText);
 
 
         fragmentSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -89,6 +90,7 @@ public class serijski_terminal extends MainActivity {
                 }
 
                 fragmentSwitch.setText("Graph");
+                GraphFragment fragment = new GraphFragment();
                 FragmentManager fm = getSupportFragmentManager();
                 FragmentTransaction ft = fm.beginTransaction();
                 ft.replace(R.id.changeFragment, new SetRegulatorParameters()).commit();
@@ -96,14 +98,14 @@ public class serijski_terminal extends MainActivity {
                 return;
             }
         });
-
-        sendButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                BreakRUNflag = true;
-
-            }
-        });//
+//
+//        sendButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                BreakRUNflag = true;
+//
+//            }
+//        });//
         goBackButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -162,7 +164,7 @@ public class serijski_terminal extends MainActivity {
         }
     }
 
-    void posljipodatke(String podatki) {
+    public void posljipodatke(String podatki) {
         //make sure there is a paired device
         if (blsocket == null) {
             return;
@@ -200,6 +202,9 @@ public class serijski_terminal extends MainActivity {
         }
     }
 
+    public void posredujNaActivity(String string) {
+        posljipodatke(string);
+    }
 
     private void startThreadConnected(BluetoothSocket socket) {
 
@@ -249,12 +254,14 @@ public class serijski_terminal extends MainActivity {
                                 if (fragmentSwitch.isChecked()) {
                                     if (!msgReceived.isEmpty()) {
                                         try {
-                                         Scanner in = new Scanner(msgReceived).useDelimiter("[^0-9]+");
+                                            Scanner in = new Scanner(msgReceived).useDelimiter("[^0-9]+");
                                             int integer = in.nextInt();
-                                            graphFragment.addEntry(graphFragment,integer);
-                                        }catch (Exception e){e.printStackTrace();}
-
+                                            graphFragment.addEntry(graphFragment, integer);
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
                                         }
+
+                                    }
 
                                 }
                                 recieve_text.setText(msgReceived);
@@ -277,6 +284,7 @@ public class serijski_terminal extends MainActivity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
+
                             String string = String.valueOf(data.getText());
                             try {
                                 posljipodatke(string);

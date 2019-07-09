@@ -34,7 +34,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         tipka_napolni = findViewById(R.id.tipka_napolni);
-        tipka_visinvis = findViewById(R.id.tipka_visinvis);
         tipka_onoff = findViewById(R.id.tipka_onoff);
         seznam_naprav = findViewById(R.id.seznam_naprav);
 
@@ -75,20 +74,11 @@ public class MainActivity extends AppCompatActivity {
                     startActivityForResult(intentOn, 0);
                     //   Toast.makeText(this,"BT omogocen",Toast.LENGTH_SHORT).show();
 
-
                 }
             }
         });
 
-        tipka_visinvis.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
 
-                Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
-                discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
-                startActivity(discoverableIntent);
-            }
-        });
         tipka_napolni.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

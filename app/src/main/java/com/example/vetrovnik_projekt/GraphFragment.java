@@ -22,6 +22,7 @@ import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
 import java.io.InputStream;
+import java.util.Objects;
 import java.util.Random;
 
 import static android.icu.lang.UCharacter.GraphemeClusterBreak.L;
@@ -42,6 +43,7 @@ public class GraphFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_graph, container, false);
         series = new LineGraphSeries<DataPoint>();
+
         GraphView graph = rootView.findViewById(R.id.graph);
         graph.addSeries(series);
         Viewport viewport = graph.getViewport();
@@ -63,8 +65,8 @@ public class GraphFragment extends Fragment {
 
 
      public void addEntry(GraphFragment graphFragment,int senzorData) {
-         GraphView graph=(GraphView) graphFragment.getView().findViewById(R.id.graph);
-//         GraphView graph= view.findViewById(R.id.graph);
+         GraphView graph= Objects.requireNonNull(graphFragment.getView()).findViewById(R.id.graph);
+
         if (graph != null) {
             series = new LineGraphSeries<DataPoint>();
             series.appendData(new DataPoint(lastX++, senzorData / 10d), true, 5);
