@@ -1,12 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:theme="@android:style/ThemeOverlay.Material.Light"
     tools:context=".GraphFragment">
 
     <com.jjoe64.graphview.GraphView
+        android:id="@+id/graph"
         android:layout_width="match_parent"
-        android:layout_height="295dp"
-        android:id="@+id/graph" />
-</FrameLayout>
+        android:layout_height="295dp" />
+
+    <SeekBar
+        android:id="@+id/referenca"
+        style="@android:style/Widget.SeekBar"
+        android:layout_width="200dp"
+        android:layout_height="100dp"
+        android:layout_below="@id/turnOnOffswitch"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="60dp"
+        android:background="@android:color/darker_gray"
+        android:max="900"
+        android:rotation="270"
+        android:scrollbarAlwaysDrawVerticalTrack="true"
+        android:scrollbarThumbHorizontal="@null"
+        android:scrollbars="vertical|none"
+        android:thumb="@android:drawable/ic_media_play" />
+
+    <Switch
+        android:id="@+id/turnOnOffswitch"
+        android:layout_width="150dp"
+        android:layout_height="40dp"
+        android:layout_below="@id/graph"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="10dp"
+        android:text="turnOnOffswitch" />
+    <Switch
+        android:id="@+id/OnOffPlot"
+        android:layout_width="150dp"
+        android:layout_height="40dp"
+        android:layout_below="@id/graph"
+        android:layout_marginEnd="10dp"
+        android:text="Plot graph" />
+</RelativeLayout>

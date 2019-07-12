@@ -78,21 +78,6 @@
         android:layout_marginTop="5dp"
         android:text="turnOnOffswitch" />
 
-    <SeekBar
-        android:id="@+id/referenca"
-        style="@android:style/Widget.SeekBar"
-        android:layout_width="250dp"
-        android:layout_height="100dp"
-        android:layout_below="@id/btnSendKi"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="80dp"
-        android:background="@color/colorPrimary"
-        android:max="900"
-        android:rotation="270"
-        android:scrollbarAlwaysDrawVerticalTrack="true"
-        android:scrollbarThumbHorizontal="@null"
-        android:scrollbars="vertical|none"
-        android:thumb="@android:drawable/ic_media_play" />
 
 
 </RelativeLayout>

@@ -15,11 +15,11 @@ import android.widget.Switch;
 
 public class SetRegulatorParameters extends Fragment
 
-        {
+{
     EditText insertKd,insertKi,insertKp;
     Button btnSendKd,btnSendKi,btnSendKp;
-    Switch turnOnOffswitch;
-    SeekBar referenca;
+
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
@@ -33,36 +33,17 @@ public class SetRegulatorParameters extends Fragment
         insertKd=view.findViewById(R.id.insertKd);
         insertKi=view.findViewById(R.id.insertKi);
         insertKp=view.findViewById(R.id.insertKp);
+        Switch turnOnOffswitch = view.findViewById(R.id.turnOnOffswitch);
 
-        turnOnOffswitch=view.findViewById(R.id.turnOnOffswitch);
-        referenca=view.findViewById(R.id.referenca);
-
-        referenca.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                int tempRef=i;
-                ((serijski_terminal)getActivity()).posredujNaActivity("R"+tempRef);
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-            @Override
-
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-        });
 
         turnOnOffswitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (b==true)
+                if (b)
                 {
                     ((serijski_terminal)getActivity()).posredujNaActivity("V1");
                     turnOnOffswitch.setText("Turn Off");
-                            turnOnOffswitch.setBackgroundColor(Color.GREEN);
+                    turnOnOffswitch.setBackgroundColor(Color.GREEN);
                 }else
                 {
                     ((serijski_terminal)getActivity()).posredujNaActivity("V0");
@@ -76,7 +57,7 @@ public class SetRegulatorParameters extends Fragment
             public void onClick(View view) {
                 String podatki= insertKd.getText().toString();
                 ((serijski_terminal)getActivity()).posredujNaActivity("K"+podatki);
-                }
+            }
         });
         btnSendKi.setOnClickListener(new View.OnClickListener() {
             @Override

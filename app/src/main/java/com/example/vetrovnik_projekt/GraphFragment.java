@@ -1,60 +1,103 @@
 package com.example.vetrovnik_projekt;
 
 import android.app.Activity;
-import android.bluetooth.BluetoothSocket;
-import android.content.Context;
 import android.graphics.Color;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-
+import android.widget.CompoundButton;
+import android.widget.SeekBar;
+import android.widget.Switch;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.Viewport;
-import com.jjoe64.graphview.helper.GraphViewXML;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
-import java.io.InputStream;
-import java.util.Objects;
-import java.util.Random;
-
-import static android.icu.lang.UCharacter.GraphemeClusterBreak.L;
-
 
 public class GraphFragment extends Fragment {
-    GraphView graph;
 
-    private LineGraphSeries<DataPoint> series;
+    private LineGraphSeries<DataPoint> seriesSensor, seriesReference;
 
-    private int lastX = 0;
+    private double lastX = 0;
+    private Boolean flag = false;
 
     public GraphFragment() {
-    super();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_graph, container, false);
-        series = new LineGraphSeries<DataPoint>();
 
+        seriesSensor = new LineGraphSeries<>();
+        seriesSensor.setColor(Color.GREEN);
+        seriesReference = new LineGraphSeries<>();
+        seriesSensor.setColor(Color.BLUE);
+        SeekBar referenca = rootView.findViewById(R.id.referenca);
         GraphView graph = rootView.findViewById(R.id.graph);
-        graph.addSeries(series);
+
+        graph.addSeries(seriesSensor);
+        graph.addSeries(seriesReference);
+
         Viewport viewport = graph.getViewport();
         viewport.setYAxisBoundsManual(true);
-        viewport.setMinY(-1);
+        viewport.setMinY(0);
         viewport.setMaxY(900);
+        viewport.setScalable(true);
         viewport.scrollToEnd();
 
-        return rootView;
+        Switch turnOnOffswitch = rootView.findViewById(R.id.turnOnOffswitch);
+        Switch OnOffPlot = rootView.findViewById(R.id.OnOffPlot);
 
+        referenca.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                int tempRef = i;
+                ((serijski_terminal) getActivity()).posredujNaActivity("R" + tempRef);
+
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+
+            public void onStopTrackingTouch(SeekBar seekBar) {
+//                double ref = seekBar.getProgress();
+//                AddReference(ref);
+            }
+        });
+
+        OnOffPlot.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (b) {
+                    OnOffPlot.setText("Plot Off");
+                    flag = true;
+                } else {
+                    OnOffPlot.setText("Plot On");
+                    flag = false;
+                }
+            }
+        });
+        turnOnOffswitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (b) {
+                    ((serijski_terminal) getActivity()).posredujNaActivity("V1");
+                    turnOnOffswitch.setText("Turn Off");
+                } else {
+                    ((serijski_terminal) getActivity()).posredujNaActivity("V0");
+                    turnOnOffswitch.setText("Turn On");
+                }
+            }
+        });
+        return rootView;
     }
+
 
     @SuppressWarnings("deprecation")
     @Override
@@ -63,15 +106,28 @@ public class GraphFragment extends Fragment {
 
     }
 
+//    public void AddReference(double reference) {
+//        GraphView graph = getView().findViewById(R.id.graph);
+//        if (graph != null) {
+//
+//            seriesReference.appendData(new DataPoint(lastX++, reference), true, 5);
+//            graph.addSeries(seriesReference);
+//
+//        }
+//
+//    }
 
-     public void addEntry(GraphFragment graphFragment,int senzorData) {
-         GraphView graph= Objects.requireNonNull(graphFragment.getView()).findViewById(R.id.graph);
-
-        if (graph != null) {
-            series = new LineGraphSeries<DataPoint>();
-            series.appendData(new DataPoint(lastX++, senzorData / 10d), true, 5);
-           // graph.addSeries(series);
+    public void addSensormeasurement(double senzorData) {
+        GraphView graph = getView().findViewById(R.id.graph);
+        if (flag) {
+            graph.setVisibility(View.VISIBLE);
+            if (graph != null) {
+                seriesSensor.appendData(new DataPoint(lastX++, senzorData), true, 5);
+                graph.addSeries(seriesSensor);
+            }
+        } else {
+            graph.setVisibility(View.INVISIBLE);
         }
-
-     }
+    }
 }
+

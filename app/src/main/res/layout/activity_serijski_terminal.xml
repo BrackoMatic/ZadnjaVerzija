@@ -7,37 +7,16 @@
     tools:context=".serijski_terminal">
 
 
-
-    <!--<EditText-->
-        <!--android:id="@+id/editText"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_centerHorizontal="true"-->
-        <!--android:layout_below="@id/recieved_text"-->
-        <!--android:layout_marginTop="5dp"-->
-        <!--android:clickable="false"-->
-        <!--android:ems="10"-->
-        <!--android:inputType="textPersonName"-->
-        <!--android:text="Send something" />-->
-
     <TextView
         android:id="@+id/recieved_text"
-        android:layout_width="200dp"
-        android:layout_height="50dp"
+        android:layout_width="120dp"
+        android:layout_height="wrap_content"
         android:layout_below="@+id/changeFragment"
-        android:layout_marginTop="80dp"
-        android:layout_centerHorizontal="true"        />
+        android:layout_toEndOf="@+id/text_recieved_data"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="10dp"/>
 
 
-    <!--<Button-->
-        <!--android:id="@+id/sendButton"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_below="@+id/editText"-->
-        <!--android:layout_alignParentStart="true"-->
-        <!--android:layout_marginStart="322dp"-->
-        <!--android:layout_marginTop="-48dp"-->
-        <!--android:text="Poslji" />-->
 
     <Button
         android:id="@+id/goBackButton"
@@ -53,19 +32,31 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/changeFragment"
-        android:layout_centerHorizontal="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="5dp"
         android:layout_marginTop="10dp"
         android:text="PlotGraph" />
 
     <FrameLayout
         android:id="@+id/changeFragment"
-        android:name="com.example.vetrovnik_projekt.GraphFragment"
+        android:name="fragment_container"
         android:layout_width="match_parent"
-        android:layout_height="400dp"
-        android:layout_alignParentStart="true"
+        android:layout_height="550dp"
         android:layout_alignParentTop="true"
         android:layout_marginStart="0dp"
-        android:layout_marginTop="-3dp" />
+        android:layout_marginTop="0dp" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/changeFragment"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="5dp"
+        android:textColor="@android:color/holo_blue_dark"
+        android:textStyle="bold"
+        android:id="@+id/text_recieved_data"
+        android:text="Recieved data:"
+        />
 
 
 
